@@ -1,0 +1,356 @@
+import React, { useState, useEffect } from 'react';
+import { TextInput, Text, View, TouchableOpacity, StyleSheet, ScrollView, FlatList, Image, Vibration } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createStackNavigator } from '@react-navigation/stack';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Accelerometer } from 'react-native-sensors';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import FastImage from 'react-native-fast-image';
+
+const Tab = createBottomTabNavigator();
+const Stack = createStackNavigator();
+
+// Tela de boas-vindas
+class Welcome extends React.Component {
+  render() {
+    return (
+      <View style={styles.welcomeContainer}>
+        <Text style={styles.welcomeText}>Bem-vindo ao App de Livros!</Text>
+        <Text style={styles.descriptionText}>Pesquise livros e descubra novas recomendações.</Text>
+      </View>
+    );
+  }
+}
+
+// Tela de login
+class Principal extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { usuario: '', senha: '' };
+  }
+
+  async ler() {
+    try {
+      let senha = await AsyncStorage.getItem(this.state.usuario);
+      if (senha && senha === this.state.senha) {
+        this.goToBusca();
+      } else {
+        alert(senha ? "Senha Incorreta!" : "Usuário não encontrado!");
+      }
+    } catch (erro) {
+      console.log(erro);
+    }
+  }
+
+  goToBusca() {
+    this.props.navigation.navigate("BuscarLivro");
+  }
+
+  render() {
+    return (
+      <ScrollView contentContainerStyle={styles.container}>
+        <Text style={styles.label}>Usuário:</Text>
+        <TextInput style={styles.input} onChangeText={(texto) => this.setState({ usuario: texto })} />
+        <Text style={styles.label}>Senha:</Text>
+        <TextInput style={styles.input} secureTextEntry onChangeText={(texto) => this.setState({ senha: texto })} />
+        <TouchableOpacity style={styles.button} onPress={() => this.ler()}>
+          <Text style={styles.buttonText}>Logar</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    );
+  }
+}
+
+// Tela de cadastro
+class Cadastro extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { usuario: '', senha: '' };
+  }
+
+  async gravar() {
+    try {
+      await AsyncStorage.setItem(this.state.usuario, this.state.senha);
+      alert("Usuário cadastrado com sucesso!");
+    } catch (erro) {
+      alert("Erro ao cadastrar!");
+    }
+  }
+
+  render() {
+    return (
+      <ScrollView contentContainerStyle={styles.container}>
+        <Text style={styles.label}>Nome de usuário:</Text>
+        <TextInput style={styles.input} onChangeText={(texto) => this.setState({ usuario: texto })} />
+        <Text style={styles.label}>Senha:</Text>
+        <TextInput style={styles.input} secureTextEntry onChangeText={(texto) => this.setState({ senha: texto })} />
+        <TouchableOpacity style={styles.button} onPress={() => this.gravar()}>
+          <Text style={styles.buttonText}>Cadastrar</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    );
+  }
+}
+
+// Tela de busca de livros
+class BuscarLivro extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { termoPesquisa: '', resultados: [] };
+  }
+
+  async pesquisarLivro() {
+    try {
+      let resposta = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${this.state.termoPesquisa}`);
+      let json = await resposta.json();
+      this.setState({ resultados: json.items || [] });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  render() {
+    return (
+      <View style={styles.container}>
+        <TextInput
+          style={styles.input}
+          placeholder="Pesquisar livro"
+          onChangeText={(texto) => this.setState({ termoPesquisa: texto })}
+        />
+        <TouchableOpacity style={styles.button} onPress={() => this.pesquisarLivro()}>
+          <Text style={styles.buttonText}>Pesquisar</Text>
+        </TouchableOpacity>
+        <FlatList
+          data={this.state.resultados}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={styles.item}
+              onPress={() => this.props.navigation.navigate("DetalhesLivro", { livro: item })}
+            >
+              <FastImage
+                style={styles.itemImage}
+                source={{ uri: item.volumeInfo.imageLinks?.thumbnail || 'https://via.placeholder.com/150' }}
+                resizeMode={FastImage.resizeMode.contain}
+              />
+              <Text style={styles.itemText}>{item.volumeInfo.title}</Text>
+            </TouchableOpacity>
+          )}
+        />
+      </View>
+    );
+  }
+}
+
+// Tela de detalhes do livro
+class DetalhesLivro extends React.Component {
+  render() {
+    const { livro } = this.props.route.params;
+    const titulo = livro.volumeInfo.title;
+    const autor = livro.volumeInfo.authors?.join(', ') || "Autor Desconhecido";
+    const descricao = livro.volumeInfo.description ? livro.volumeInfo.description.split(' ').slice(0, 30).join(' ') + '...' : "Descrição não disponível.";
+
+    const musicaAleatoria = [
+      "Adele - Someone Like You", "Billie Eilish - When the Party's Over", "Lana Del Rey - Summertime Sadness",
+      "The Weeknd - Blinding Lights", "Sia - Breathe Me", "Johnny Cash - Hurt", "Sam Smith - I'm Not the Only One",
+      "The Cure - Pictures of You", "Kendrick Lamar - u", "Lana Del Rey - Born to Die", "Tori Amos - Winter",
+      "Hozier - Cherry Wine", "Sufjan Stevens - John Wayne Gacy, Jr.", "Damien Rice - 9 Crimes", "Lorde - The Louvre",
+      "Radiohead - No Surprises", "James Blake - Retrograde", "Florence + The Machine - Shake It Out", "Arcade Fire - The Suburbs",
+      "Sigur Rós - Sæglópur", "The Smiths - How Soon Is Now?", "Nine Inch Nails - Hurt", "The National - I Need My Girl",
+      "Portishead - Roads", "Bauhaus - Bela Lugosi's Dead", "Skrillex - First of the Year (Equinox)", "Michael Jackson - Thriller",
+      "Led Zeppelin - Stairway to Heaven", "Pearl Jam - Alive", "Legião Urbana - Tempo Perdido"
+    ];
+
+    const filmeAleatorio = [
+      "Uma Mente Brilhante", "Forrest Gump - O Contador de Histórias", "O Poderoso Chefão", "O Cavaleiro das Trevas",
+      "A Origem", "Clube da Luta", "O Silêncio dos Inocentes", "O Prestígio", "Os Infiltrados", "À Espera de um Milagre",
+      "Pulp Fiction - Tempo de Violência", "Se7en - Os Sete Crimes Capitais", "Ilha do Medo", "Matrix", "O Regresso",
+      "Laranja Mecânica", "Os Suspeitos", "Garota Exemplar", "Beleza Americana", "Ela", "Brilho Eterno de uma Mente sem Lembranças",
+      "La La Land - Cantando Estações", "500 Dias com Ela", "Titanic", "O Lado Bom da Vida", "Antes do Amanhecer",
+      "A Culpa é das Estrelas", "O Voto", "A Teoria de Tudo", "À Procura da Felicidade"
+    ];
+
+    return (
+      <View style={styles.detalhesContainer}>
+        <Text style={styles.detalhesText}>Título: {titulo}</Text>
+        <Text style={styles.detalhesText}>Autor: {autor}</Text>
+        <Text style={styles.sinopseText}>{descricao}</Text>
+
+        <Text style={styles.recommendationTitle}>Onde Comprar:</Text>
+        <Text style={styles.recommendationText}>- Amazon</Text>
+        <Text style={styles.recommendationText}>- Livraria Cultura</Text>
+
+        <Text style={styles.recommendationTitle}>Música para Ouvir:</Text>
+        <Text style={styles.recommendationText}>{musicaAleatoria[Math.floor(Math.random() * musicaAleatoria.length)]}</Text>
+
+        <Text style={styles.recommendationTitle}>Filme Similar:</Text>
+        <Text style={styles.recommendationText}>{filmeAleatorio[Math.floor(Math.random() * filmeAleatorio.length)]}</Text>
+      </View>
+    );
+  }
+}
+
+// Funcionalidade de Acelerômetro e Vibração
+const useShakeDetector = () => {
+  const [shakeDetected, setShakeDetected] = useState(false);
+
+  useEffect(() => {
+    const subscription = Accelerometer.addListener(({ x, y, z }) => {
+      const shakeThreshold = 2.5; // valor do acelerômetro que indica um movimento significativo
+      if (Math.abs(x) > shakeThreshold || Math.abs(y) > shakeThreshold || Math.abs(z) > shakeThreshold) {
+        setShakeDetected(true);
+        Vibration.vibrate(500); // Vibra por 500ms
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+
+  return shakeDetected;
+};
+
+// Tela principal com detecção de agitação
+const HomeTabs = () => {
+  const shakeDetected = useShakeDetector();
+
+  return (
+    <Tab.Navigator>
+      <Tab.Screen
+        name="Principal"
+        component={Principal}
+        options={{
+          tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="login" color={color} size={size} />,
+        }}
+      />
+      <Tab.Screen
+        name="Cadastro"
+        component={Cadastro}
+        options={{
+          tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="account-plus" color={color} size={size} />,
+        }}
+      />
+    </Tab.Navigator>
+  );
+};
+
+// App principal
+const App = () => (
+  <NavigationContainer>
+    <Stack.Navigator>
+      <Stack.Screen name="Home" component={HomeTabs} options={{ headerShown: false }} />
+      <Stack.Screen name="BuscarLivro" component={BuscarLivro} />
+      <Stack.Screen name="DetalhesLivro" component={DetalhesLivro} />
+    </Stack.Navigator>
+  </NavigationContainer>
+);
+
+export default App;
+
+// Estilos refinados do app
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#2E004F',
+    padding: 20,
+  },
+  welcomeContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 30,
+  },
+  welcomeText: {
+    fontSize: 28,
+    fontFamily: 'serif',
+    fontWeight: 'bold',
+    color: '#FFD700',
+  },
+  descriptionText: {
+    fontSize: 18,
+    fontFamily: 'serif',
+    color: '#FFD700',
+    textAlign: 'center',
+  },
+  label: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#FFD700',
+    marginTop: 20,
+  },
+  input: {
+    width: '100%',
+    padding: 12,
+    backgroundColor: '#ffffff',
+    marginTop: 10,
+    borderRadius: 8,
+    borderColor: '#ddd',
+    borderWidth: 1,
+    fontSize: 16,
+    fontFamily: 'serif',
+  },
+  button: {
+    marginTop: 30,
+    backgroundColor: '#FFD700',
+    padding: 16,
+    borderRadius: 8,
+    width: '100%',
+  },
+  buttonText: {
+    color: '#2E004F',
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  item: {
+    padding: 20,
+    backgroundColor: '#4B0082',
+    marginVertical: 10,
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+  },
+  itemText: {
+    color: '#FFD700',
+    fontSize: 18,
+    fontFamily: 'serif',
+  },
+  itemImage: {
+    width: 100,
+    height: 150,
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  detalhesContainer: {
+    padding: 20,
+    backgroundColor: '#2E004F',
+  },
+  detalhesText: {
+    fontSize: 20,
+    color: '#FFD700',
+    marginBottom: 10,
+    fontFamily: 'serif',
+  },
+  sinopseText: {
+    fontSize: 16,
+    color: '#FFD700',
+    marginBottom: 20,
+    fontFamily: 'serif',
+  },
+  recommendationTitle: {
+    fontSize: 18,
+    color: '#FFD700',
+    marginTop: 20,
+    fontFamily: 'serif',
+  },
+  recommendationText: {
+    fontSize: 16,
+    color: '#FFD700',
+    fontFamily: 'serif',
+  },
+});
