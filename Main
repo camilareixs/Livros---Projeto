@@ -1,10 +1,21 @@
-import React from 'react'; 
-import { TextInput, Text, View, TouchableOpacity, StyleSheet, ScrollView, FlatList, Image, Platform } from 'react-native';
+import React from 'react';
+import {
+  TextInput,
+  Text,
+  View,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  FlatList,
+  Image,
+  Platform,
+} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Audio } from 'expo-av';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -22,7 +33,20 @@ class Welcome extends React.Component {
 class Principal extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { usuario: '', senha: '' };
+    this.state = { usuario: '', senha: '', sound: null };
+  }
+
+  // Função para carregar e tocar o som "péééé"
+  async playErrorSound() {
+    try {
+      const { sound } = await Audio.Sound.createAsync(
+        require('./erro.mp3')
+      );
+      this.setState({ sound });
+      await sound.playAsync(); // Tocar o som
+    } catch (error) {
+      console.log('Erro ao carregar o som:', error);
+    }
   }
 
   async ler() {
@@ -31,7 +55,8 @@ class Principal extends React.Component {
       if (senha && senha === this.state.senha) {
         this.goToBusca();
       } else {
-        alert(senha ? "Senha Incorreta!" : "Usuário não encontrado!");
+        alert(senha ? 'Senha Incorreta!' : 'Usuário não encontrado!');
+        this.playErrorSound(); // Chama a função para tocar o som "péééé"
       }
     } catch (erro) {
       console.log(erro);
@@ -39,26 +64,31 @@ class Principal extends React.Component {
   }
 
   goToBusca() {
-    this.props.navigation.replace("BuscarLivro"); 
+    this.props.navigation.replace('BuscarLivro');
   }
 
   render() {
     return (
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.label}>Usuário:</Text>
-        <TextInput style={styles.input} onChangeText={(texto) => this.setState({ usuario: texto })} />
+        <TextInput
+          style={styles.input}
+          onChangeText={(texto) => this.setState({ usuario: texto })}
+        />
         <Text style={styles.label}>Senha:</Text>
-        <TextInput style={styles.input} secureTextEntry onChangeText={(texto) => this.setState({ senha: texto })} />
+        <TextInput
+          style={styles.input}
+          secureTextEntry
+          onChangeText={(texto) => this.setState({ senha: texto })}
+        />
         <TouchableOpacity style={styles.button} onPress={() => this.ler()}>
           <Text style={styles.buttonText}>Logar</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => this.props.navigation.navigate("Cadastro")}>
+        <TouchableOpacity
+          onPress={() => this.props.navigation.navigate('Cadastro')}>
           <Text style={styles.switchText}>Não tem uma conta? Cadastre-se</Text>
         </TouchableOpacity>
-
-
-
       </ScrollView>
     );
   }
@@ -73,9 +103,9 @@ class Cadastro extends React.Component {
   async gravar() {
     try {
       await AsyncStorage.setItem(this.state.usuario, this.state.senha);
-      alert("Usuário cadastrado com sucesso!");
+      alert('Usuário cadastrado com sucesso!');
     } catch (erro) {
-      alert("Erro ao cadastrar!");
+      alert('Erro ao cadastrar!');
     }
   }
 
@@ -83,15 +113,22 @@ class Cadastro extends React.Component {
     return (
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.label}>Nome de usuário:</Text>
-        <TextInput style={styles.input} onChangeText={(texto) => this.setState({ usuario: texto })} />
+        <TextInput
+          style={styles.input}
+          onChangeText={(texto) => this.setState({ usuario: texto })}
+        />
         <Text style={styles.label}>Senha:</Text>
-        <TextInput style={styles.input} secureTextEntry onChangeText={(texto) => this.setState({ senha: texto })} />
+        <TextInput
+          style={styles.input}
+          secureTextEntry
+          onChangeText={(texto) => this.setState({ senha: texto })}
+        />
         <TouchableOpacity style={styles.button} onPress={() => this.gravar()}>
           <Text style={styles.buttonText}>Cadastrar</Text>
         </TouchableOpacity>
 
-        
-        <TouchableOpacity onPress={() => this.props.navigation.navigate("Login")}>
+        <TouchableOpacity
+          onPress={() => this.props.navigation.navigate('Login')}>
           <Text style={styles.switchText}>Já tem uma conta? Faça login</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -104,10 +141,18 @@ class BuscarLivro extends React.Component {
     super(props);
     this.state = {
       livros: [
-        { titulo: "Dom Casmurro", musica: "Chico Buarque - Construção", filme: "Capitu" },
-        { titulo: "1984", musica: "David Bowie - 1984", filme: "Brazil" },
-        { titulo: "Orgulho e Preconceito", musica: "Mozart - Sonata em Fá Maior", filme: "Orgulho e Preconceito" },
-      ]
+        {
+          titulo: 'Dom Casmurro',
+          musica: 'Chico Buarque - Construção',
+          filme: 'Capitu',
+        },
+        { titulo: '1984', musica: 'David Bowie - 1984', filme: 'Brazil' },
+        {
+          titulo: 'Orgulho e Preconceito',
+          musica: 'Mozart - Sonata em Fá Maior',
+          filme: 'Orgulho e Preconceito',
+        },
+      ],
     };
   }
 
@@ -120,12 +165,23 @@ class BuscarLivro extends React.Component {
         renderItem={({ item }) => (
           <TouchableOpacity
             style={styles.item}
-            onPress={() => this.props.navigation.navigate("DetalhesLivro", { livro: item })}
-          >
+            onPress={() =>
+              this.props.navigation.navigate('DetalhesLivro', { livro: item })
+            }>
             <Text style={styles.itemText}>{item.titulo}</Text>
           </TouchableOpacity>
         )}
       />
+    );
+  }
+}
+
+class SobreOApp extends React.Component {
+  render() {
+    return (
+      <View style={styles.welcomeContainer}>
+        <Image source={require('./Rifiteca (1).png')} style={styles.image} />
+      </View>
     );
   }
 }
@@ -151,28 +207,60 @@ const HomeTabs = () => (
     screenOptions={{
       tabBarActiveTintColor: '#FFB300',
       tabBarInactiveTintColor: '#ffffff',
-      tabBarStyle: { backgroundColor: '#44345a', borderTopLeftRadius: 0, borderTopRightRadius: 0 },
-    }}
-  >
+      tabBarStyle: {
+        backgroundColor: '#44345a',
+        borderTopLeftRadius: 0,
+        borderTopRightRadius: 0,
+      },
+    }}>
     <Tab.Screen
       name="Bem-vindo"
       component={Welcome}
       options={{
-        tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="home" color={color} size={size} />,
+        tabBarIcon: ({ color, size }) => (
+          <MaterialCommunityIcons name="home" color={color} size={size} />
+        ),
       }}
     />
     <Tab.Screen
       name="Login"
       component={Principal}
       options={{
-        tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="home-account" color={color} size={size} />,
+        tabBarIcon: ({ color, size }) => (
+          <MaterialCommunityIcons
+            name="home-account"
+            color={color}
+            size={size}
+          />
+        ),
       }}
     />
     <Tab.Screen
       name="Cadastro"
       component={Cadastro}
       options={{
-        tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="account-details" color={color} size={size} />,
+        tabBarIcon: ({ color, size }) => (
+          <MaterialCommunityIcons
+            name="account-details"
+            color={color}
+            size={size}
+          />
+          
+        ),
+      }}
+    />
+    <Tab.Screen
+      name="Sobre"
+      component={SobreOApp}
+      options={{
+        tabBarIcon: ({ color, size }) => (
+          <MaterialCommunityIcons
+            name="account-details"
+            color={color}
+            size={size}
+          />
+          
+        ),
       }}
     />
   </Tab.Navigator>
@@ -181,92 +269,104 @@ const HomeTabs = () => (
 const App = () => (
   <NavigationContainer>
     <Stack.Navigator>
-      <Stack.Screen name="Home" component={HomeTabs} options={{ headerShown: false }} />
-      <Stack.Screen name="DetalhesLivro" component={DetalhesLivro} options={{ headerShown: true }} />
-      <Stack.Screen name="BuscarLivro" component={BuscarLivro} options={{ headerShown: true }} />
+      <Stack.Screen
+        name="Home"
+        component={HomeTabs}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="DetalhesLivro"
+        component={DetalhesLivro}
+        options={{ headerShown: true }}
+      />
+      <Stack.Screen
+        name="BuscarLivro"
+        component={BuscarLivro}
+        options={{ headerShown: true }}
+      />
     </Stack.Navigator>
   </NavigationContainer>
 );
 
 const styles = StyleSheet.create({
-  welcomeContainer: { 
-    flex: 1, 
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    padding: 16, 
-    backgroundColor: '#44345a' 
+  welcomeContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 16,
+    backgroundColor: '#44345a',
   },
 
-  container: { 
-    flex: 1, 
-    justifyContent: 'center', 
-    padding: 16, 
-    backgroundColor: '#44345a' 
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: 16,
+    backgroundColor: '#44345a',
   },
-  label: { 
-    marginBottom: 8, 
-    fontSize: 18, 
-    fontWeight: 'bold', 
-    color: '#FFB300' 
+  label: {
+    marginBottom: 8,
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#FFB300',
   },
-  input: { 
-    height: 50, 
-    borderColor: '#FFB300', 
-    borderWidth: 1, 
-    borderRadius: 25, 
-    paddingLeft: 20, 
-    marginBottom: 16, 
-    backgroundColor: '#382650' 
+  input: {
+    height: 50,
+    borderColor: '#FFB300',
+    borderWidth: 1,
+    borderRadius: 25,
+    paddingLeft: 20,
+    marginBottom: 16,
+    backgroundColor: '#382650',
   },
-  button: { 
+  button: {
     backgroundColor: '#FFB300',
-  borderRadius: 25,
-  paddingVertical: 10,
-  alignItems: 'center',
-  justifyContent: 'center',
-  width: 100,
-  marginHorizontal: 'auto'
+    borderRadius: 25,
+    paddingVertical: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 100,
+    marginHorizontal: 'auto',
   },
-  buttonText: { 
-    color: '#4B0082', 
-    fontSize: 16, 
-    fontWeight: 'bold' 
+  buttonText: {
+    color: '#4B0082',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
-  item: { 
-    padding: 10, 
-    marginVertical: 5, 
-    backgroundColor: '#FFB300', 
-    borderRadius: 10 
+  item: {
+    padding: 10,
+    marginVertical: 5,
+    backgroundColor: '#FFB300',
+    borderRadius: 10,
   },
-  itemText: { 
-    fontSize: 18, 
-    color: '#4B0082' 
+  itemText: {
+    fontSize: 18,
+    color: '#4B0082',
   },
-  detalhesContainer: { 
-    flex: 1, 
-    padding: 16, 
-    backgroundColor: '#4B0082' 
+  detalhesContainer: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: '#4B0082',
   },
-  detalhesText: { 
-    fontSize: 20, 
-    color: '#FFB300', 
-    fontWeight: 'bold', 
-    marginBottom: 8 
+  detalhesText: {
+    fontSize: 20,
+    color: '#FFB300',
+    fontWeight: 'bold',
+    marginBottom: 8,
   },
-  recommendationTitle: { 
-    fontSize: 18, 
-    color: '#FFB300', 
-    fontWeight: 'bold', 
-    marginBottom: 8 
+  recommendationTitle: {
+    fontSize: 18,
+    color: '#FFB300',
+    fontWeight: 'bold',
+    marginBottom: 8,
   },
-  recommendationText: { 
-    fontSize: 16, 
-    color: '#FFD700' 
+  recommendationText: {
+    fontSize: 16,
+    color: '#FFD700',
   },
   image: {
-    width: Platform.OS === 'web' ? 410 : 600, 
-    height: Platform.OS === 'web' ? 410 : 730, 
-    marginBottom: 20, 
+    width: Platform.OS === 'web' ? 410 : 600,
+    height: Platform.OS === 'web' ? 410 : 730,
+    marginBottom: 20,
   },
   switchText: {
     color: '#FFB300',
