@@ -1,5 +1,5 @@
-import React from 'react';
-import { TextInput, Text, View, TouchableOpacity, StyleSheet, ScrollView, FlatList } from 'react-native';
+import React from 'react'; 
+import { TextInput, Text, View, TouchableOpacity, StyleSheet, ScrollView, FlatList, Image, Platform } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -13,8 +13,7 @@ class Welcome extends React.Component {
   render() {
     return (
       <View style={styles.welcomeContainer}>
-        <Text style={styles.welcomeText}>Bem-vindo ao App de Livros!</Text>
-        <Text style={styles.descriptionText}>Pesquise livros e descubra novas recomendações.</Text>
+        <Image source={require('./Rifiteca.png')} style={styles.image} />
       </View>
     );
   }
@@ -40,7 +39,7 @@ class Principal extends React.Component {
   }
 
   goToBusca() {
-    this.props.navigation.replace("BuscarLivro"); // Alterado para navegar diretamente para a página de busca
+    this.props.navigation.replace("BuscarLivro"); 
   }
 
   render() {
@@ -53,6 +52,13 @@ class Principal extends React.Component {
         <TouchableOpacity style={styles.button} onPress={() => this.ler()}>
           <Text style={styles.buttonText}>Logar</Text>
         </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => this.props.navigation.navigate("Cadastro")}>
+          <Text style={styles.switchText}>Não tem uma conta? Cadastre-se</Text>
+        </TouchableOpacity>
+
+
+
       </ScrollView>
     );
   }
@@ -83,6 +89,11 @@ class Cadastro extends React.Component {
         <TouchableOpacity style={styles.button} onPress={() => this.gravar()}>
           <Text style={styles.buttonText}>Cadastrar</Text>
         </TouchableOpacity>
+
+        
+        <TouchableOpacity onPress={() => this.props.navigation.navigate("Login")}>
+          <Text style={styles.switchText}>Já tem uma conta? Faça login</Text>
+        </TouchableOpacity>
       </ScrollView>
     );
   }
@@ -91,43 +102,30 @@ class Cadastro extends React.Component {
 class BuscarLivro extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { termoPesquisa: '', resultados: [] };
-  }
-
-  async pesquisarLivro() {
-    try {
-      let resposta = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${this.state.termoPesquisa}`);
-      let json = await resposta.json();
-      this.setState({ resultados: json.items || [] });
-    } catch (error) {
-      console.log(error);
-    }
+    this.state = {
+      livros: [
+        { titulo: "Dom Casmurro", musica: "Chico Buarque - Construção", filme: "Capitu" },
+        { titulo: "1984", musica: "David Bowie - 1984", filme: "Brazil" },
+        { titulo: "Orgulho e Preconceito", musica: "Mozart - Sonata em Fá Maior", filme: "Orgulho e Preconceito" },
+      ]
+    };
   }
 
   render() {
     return (
-      <View style={styles.container}>
-        <TextInput
-          style={styles.input}
-          placeholder="Pesquisar livro"
-          onChangeText={(texto) => this.setState({ termoPesquisa: texto })}
-        />
-        <TouchableOpacity style={styles.button} onPress={() => this.pesquisarLivro()}>
-          <Text style={styles.buttonText}>Pesquisar</Text>
-        </TouchableOpacity>
-        <FlatList
-          data={this.state.resultados}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              style={styles.item}
-              onPress={() => this.props.navigation.navigate("DetalhesLivro", { livro: item })}
-            >
-              <Text style={styles.itemText}>{item.volumeInfo.title}</Text>
-            </TouchableOpacity>
-          )}
-        />
-      </View>
+      <FlatList
+        contentContainerStyle={styles.container}
+        data={this.state.livros}
+        keyExtractor={(item) => item.titulo}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            style={styles.item}
+            onPress={() => this.props.navigation.navigate("DetalhesLivro", { livro: item })}
+          >
+            <Text style={styles.itemText}>{item.titulo}</Text>
+          </TouchableOpacity>
+        )}
+      />
     );
   }
 }
@@ -135,91 +133,14 @@ class BuscarLivro extends React.Component {
 class DetalhesLivro extends React.Component {
   render() {
     const { livro } = this.props.route.params;
-    const titulo = livro.volumeInfo.title;
-    const autor = livro.volumeInfo.authors?.join(', ') || "Autor Desconhecido";
-    const descricao = livro.volumeInfo.description ? livro.volumeInfo.description.split(' ').slice(0, 30).join(' ') + '...' : "Descrição não disponível.";
-
-    const musicaAleatoria = [
-      "Adele - Someone Like You",
-      "Billie Eilish - When the Party's Over",
-      "Lana Del Rey - Summertime Sadness",
-      "The Weeknd - Blinding Lights",
-      "Sia - Breathe Me",
-      "Johnny Cash - Hurt",
-      "Sam Smith - I'm Not the Only One",
-      "The Cure - Pictures of You",
-      "Kendrick Lamar - u",
-      "Lana Del Rey - Born to Die",
-      "Tori Amos - Winter",
-      "Hozier - Cherry Wine",
-      "Sufjan Stevens - John Wayne Gacy, Jr.",
-      "Damien Rice - 9 Crimes",
-      "Lorde - The Louvre",
-      "Radiohead - No Surprises",
-      "James Blake - Retrograde",
-      "Florence + The Machine - Shake It Out",
-      "Arcade Fire - The Suburbs",
-      "Sigur Rós - Sæglópur",
-      "The Smiths - How Soon Is Now?",
-      "Nine Inch Nails - Hurt",
-      "The National - I Need My Girl",
-      "Portishead - Roads",
-      "Bauhaus - Bela Lugosi's Dead",
-      "Skrillex - First of the Year (Equinox)",
-      "Michael Jackson - Thriller",
-      "Led Zeppelin - Stairway to Heaven",
-      "Pearl Jam - Alive",
-      "Legião Urbana - Tempo Perdido"
-    ];
-
-    const filmeAleatorio = [
-      "Uma Mente Brilhante",
-      "Forrest Gump - O Contador de Histórias",
-      "O Poderoso Chefão",
-      "O Cavaleiro das Trevas",
-      "A Origem",
-      "Clube da Luta",
-      "O Silêncio dos Inocentes",
-      "O Prestígio",
-      "Os Infiltrados",
-      "À Espera de um Milagre",
-      "Pulp Fiction - Tempo de Violência",
-      "Se7en - Os Sete Crimes Capitais",
-      "Ilha do Medo",
-      "Matrix",
-      "O Regresso",
-      "Laranja Mecânica",
-      "Os Suspeitos",
-      "Garota Exemplar",
-      "Beleza Americana",
-      "Ela",
-      "Brilho Eterno de uma Mente sem Lembranças",
-      "La La Land - Cantando Estações",
-      "500 Dias com Ela",
-      "Titanic",
-      "O Lado Bom da Vida",
-      "Antes do Amanhecer",
-      "A Culpa é das Estrelas",
-      "O Voto",
-      "A Teoria de Tudo",
-      "À Procura da Felicidade"
-    ];
 
     return (
       <View style={styles.detalhesContainer}>
-        <Text style={styles.detalhesText}>Título: {titulo}</Text>
-        <Text style={styles.detalhesText}>Autor: {autor}</Text>
-        <Text style={styles.sinopseText}>{descricao}</Text>
-
-        <Text style={styles.recommendationTitle}>Onde Comprar:</Text>
-        <Text style={styles.recommendationText}>- Amazon</Text>
-        <Text style={styles.recommendationText}>- Livraria Cultura</Text>
-
+        <Text style={styles.detalhesText}>Título: {livro.titulo}</Text>
         <Text style={styles.recommendationTitle}>Música para Ouvir:</Text>
-        <Text style={styles.recommendationText}>{musicaAleatoria[Math.floor(Math.random() * musicaAleatoria.length)]}</Text>
-
+        <Text style={styles.recommendationText}>{livro.musica}</Text>
         <Text style={styles.recommendationTitle}>Filme Semelhante:</Text>
-        <Text style={styles.recommendationText}>{filmeAleatorio[Math.floor(Math.random() * filmeAleatorio.length)]}</Text>
+        <Text style={styles.recommendationText}>{livro.filme}</Text>
       </View>
     );
   }
@@ -230,7 +151,7 @@ const HomeTabs = () => (
     screenOptions={{
       tabBarActiveTintColor: '#FFB300',
       tabBarInactiveTintColor: '#ffffff',
-      tabBarStyle: { backgroundColor: '#2E004E', borderTopLeftRadius: 20, borderTopRightRadius: 20 },
+      tabBarStyle: { backgroundColor: '#44345a', borderTopLeftRadius: 0, borderTopRightRadius: 0 },
     }}
   >
     <Tab.Screen
@@ -273,86 +194,86 @@ const styles = StyleSheet.create({
     justifyContent: 'center', 
     alignItems: 'center', 
     padding: 16, 
-    backgroundColor: '#4B0082' // Roxo profundo
+    backgroundColor: '#44345a' 
   },
-  welcomeText: { 
-    fontSize: 24, 
-    fontWeight: 'bold', 
-    color: '#FFB300', // Amarelo
-    marginBottom: 16 
-  },
-  descriptionText: { 
-    fontSize: 16, 
-    color: '#FFD700', // Mostarda
-    textAlign: 'center' 
-  },
+
   container: { 
     flex: 1, 
     justifyContent: 'center', 
     padding: 16, 
-    backgroundColor: '#4B0082' // Roxo profundo
+    backgroundColor: '#44345a' 
   },
   label: { 
     marginBottom: 8, 
     fontSize: 18, 
     fontWeight: 'bold', 
-    color: '#FFB300' // Amarelo
+    color: '#FFB300' 
   },
   input: { 
     height: 50, 
-    borderColor: '#FFB300', // Amarelo
+    borderColor: '#FFB300', 
     borderWidth: 1, 
     borderRadius: 25, 
     paddingLeft: 20, 
     marginBottom: 16, 
-    backgroundColor: '#ffffff' 
+    backgroundColor: '#382650' 
   },
   button: { 
-    backgroundColor: '#FFB300', // Amarelo
-    borderRadius: 25, 
-    paddingVertical: 15, 
-    alignItems: 'center' 
+    backgroundColor: '#FFB300',
+  borderRadius: 25,
+  paddingVertical: 10,
+  alignItems: 'center',
+  justifyContent: 'center',
+  width: 100,
+  marginHorizontal: 'auto'
   },
   buttonText: { 
-    color: '#4B0082', // Roxo profundo
+    color: '#4B0082', 
     fontSize: 16, 
     fontWeight: 'bold' 
   },
   item: { 
     padding: 10, 
     marginVertical: 5, 
-    backgroundColor: '#FFB300', // Amarelo
+    backgroundColor: '#FFB300', 
     borderRadius: 10 
   },
   itemText: { 
     fontSize: 18, 
-    color: '#4B0082' // Roxo profundo
+    color: '#4B0082' 
   },
   detalhesContainer: { 
     flex: 1, 
     padding: 16, 
-    backgroundColor: '#4B0082' // Roxo profundo
+    backgroundColor: '#4B0082' 
   },
   detalhesText: { 
     fontSize: 20, 
-    color: '#FFB300', // Amarelo
+    color: '#FFB300', 
     fontWeight: 'bold', 
     marginBottom: 8 
   },
-  sinopseText: { 
-    fontSize: 16, 
-    color: '#FFFFFF', 
-    marginBottom: 16 
-  },
   recommendationTitle: { 
     fontSize: 18, 
-    color: '#FFB300', // Amarelo
+    color: '#FFB300', 
     fontWeight: 'bold', 
     marginBottom: 8 
   },
   recommendationText: { 
     fontSize: 16, 
-    color: '#FFD700' // Mostarda
+    color: '#FFD700' 
+  },
+  image: {
+    width: Platform.OS === 'web' ? 410 : 600, 
+    height: Platform.OS === 'web' ? 410 : 730, 
+    marginBottom: 20, 
+  },
+  switchText: {
+    color: '#FFB300',
+    fontSize: 13,
+    textAlign: 'center',
+    marginTop: 10,
+    textDecorationLine: 'underline',
   },
 });
 
