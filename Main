@@ -8,23 +8,40 @@ import {
   ScrollView,
   FlatList,
   Image,
-  Platform,
 } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Audio } from 'expo-av';
 
-const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
 class Welcome extends React.Component {
   render() {
     return (
       <View style={styles.welcomeContainer}>
-        <Image source={require('./Rifiteca.png')} style={styles.image} />
+        <Image source={require('./abc.png')} style={styles.image} />
+        <Text style={styles.welcomeText}>
+          Uma rede social para quem quer dar play nos livros, virar pagina nos filmes e assistir as musicas!
+        </Text>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => this.props.navigation.navigate('Login')}
+        >
+          <Text style={styles.buttonText}>Login</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => this.props.navigation.navigate('Cadastro')}
+        >
+          <Text style={styles.buttonText}>Cadastro</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => this.props.navigation.navigate('Sobre')}
+        >
+          <Text style={styles.buttonText}>Sobre</Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -36,14 +53,13 @@ class Principal extends React.Component {
     this.state = { usuario: '', senha: '', sound: null };
   }
 
-  // Função para carregar e tocar o som "péééé"
   async playErrorSound() {
     try {
       const { sound } = await Audio.Sound.createAsync(
         require('./erro.mp3')
       );
       this.setState({ sound });
-      await sound.playAsync(); // Tocar o som
+      await sound.playAsync();
     } catch (error) {
       console.log('Erro ao carregar o som:', error);
     }
@@ -56,7 +72,7 @@ class Principal extends React.Component {
         this.goToBusca();
       } else {
         alert(senha ? 'Senha Incorreta!' : 'Usuário não encontrado!');
-        this.playErrorSound(); // Chama a função para tocar o som "péééé"
+        this.playErrorSound();
       }
     } catch (erro) {
       console.log(erro);
@@ -86,7 +102,8 @@ class Principal extends React.Component {
         </TouchableOpacity>
 
         <TouchableOpacity
-          onPress={() => this.props.navigation.navigate('Cadastro')}>
+          onPress={() => this.props.navigation.navigate('Cadastro')}
+        >
           <Text style={styles.switchText}>Não tem uma conta? Cadastre-se</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -141,138 +158,222 @@ class BuscarLivro extends React.Component {
     super(props);
     this.state = {
       livros: [
-        {
-          titulo: 'Dom Casmurro',
-          musica: 'Chico Buarque - Construção',
-          filme: 'Capitu',
-        },
-        { titulo: '1984', musica: 'David Bowie - 1984', filme: 'Brazil' },
-        {
-          titulo: 'Orgulho e Preconceito',
-          musica: 'Mozart - Sonata em Fá Maior',
-          filme: 'Orgulho e Preconceito',
-        },
-      ],
+
+      { titulo: 'Garota Exemplar', musica: 'Monsters - Shinedown', filme: 'Atração Fatal' },
+      { titulo: 'O Poderoso Chefão', musica: 'Hurt - Johnny Cash', filme: 'Donnie Brasco' },
+      { titulo: 'É Assim Que Acaba', musica: 'Stay - Rihanna', filme: 'Revenge' },
+      { titulo: 'Se Houver Amanhã', musica: 'Fighter - Royal Deluxe', filme: 'Mississipi em Chamas' },
+      { titulo: 'A Guerra dos Tronos', musica: 'The Rains of Castamere - The National', filme: 'O Senhor dos Anéis' },
+      { titulo: 'A Fúria dos Reis', musica: 'Lorde - Glory and Gore', filme: 'Gladiador' },
+      { titulo: 'A Tormenta de Espadas', musica: 'Metallica - Enter Sandman', filme: 'Reino dos Céus' },
+      { titulo: 'O Festim dos Corvos', musica: 'Knights of Cydonia - Muse', filme: 'O Destino de Júpiter' },
+      { titulo: 'A Dança dos Dragões', musica: 'Dragons - Imagine Dragons', filme: 'Coração Valente' },
+      { titulo: 'O Jardim dos Esquecidos', musica: 'The Sound of Silence - Simon & Garfunkel', filme: 'A Outra' },
+      { titulo: 'A Garota no Trem', musica: 'Somebodys Watching Me - Rockwell', filme: 'A Janela Secreta' },
+      { titulo: 'Antes de Dormir', musica: 'Radiohead - No Surprises', filme: 'Efeito Borboleta' }, 
+{ titulo: 'O Homem de Giz', musica: 'Arctic Monkeys - Do I Wanna Know?', filme: 'Clube da Luta' },
+{ titulo: 'A Paciente Silenciosa', musica: 'Massive Attack - Teardrop', filme: 'O Sexto Sentido' },
+{ titulo: 'O Silêncio dos Inocentes', musica: 'Nine Inch Nails - Closer', filme: 'Seven' },
+{ titulo: 'It: A Coisa', musica: 'The Rolling Stones - Paint It Black', filme: 'O Iluminado' },
+{ titulo: 'O Exorcista', musica: 'Mike Oldfield - Tubular Bells', filme: 'Invocação do Mal' },
+{ titulo: 'A Assombração da Casa da Colina', musica: 'Ghost - Cirice', filme: 'A Casa Amaldiçoada' },
+{ titulo: 'Hereditário', musica: 'Portishead - Roads', filme: 'O Ritual' },
+{ titulo: 'O Chamado', musica: 'Marilyn Manson - Sweet Dreams', filme: 'O Grito' },
+{ titulo: 'Orgulho e Preconceito', musica: 'Mozart - Sonata em Fá Maior', filme: 'Orgulho e Preconceito' },
+{ titulo: 'Um Dia', musica: 'Snow Patrol - Chasing Cars', filme: 'PS: Eu Te Amo' },
+{ titulo: 'Querido John', musica: 'Taylor Swift - Love Story', filme: 'Diário de uma Paixão' },
+{ titulo: 'Simplesmente Acontece', musica: 'Ed Sheeran - Thinking Out Loud', filme: 'Como Eu Era Antes de Você' },
+{ titulo: 'A Culpa é das Estrelas', musica: 'Birdy - Not About Angels', filme: 'Se Eu Ficar' },
+{ titulo: '1984', musica: 'David Bowie - 1984', filme: 'Brazil' },
+{ titulo: 'Uma vida pequena', musica: 'Leonard Cohen - Hallelujah', filme: 'Manchester à Beira-Mar' },
+{ titulo: 'Crime e Castigo', musica: 'Radiohead - Karma Police', filme: 'Clube da Luta' },
+{ titulo: 'O Morro dos Ventos Uivantes', musica: 'Kate Bush - Wuthering Heights', filme: 'O Morro dos Ventos Uivantes' },
+{ titulo: 'Moby Dick', musica: 'Johnny Cash - Hurt', filme: 'No Coração do Mar' },
+{ titulo: 'Os Miseráveis', musica: 'I Dreamed a Dream', filme: 'Os Miseráveis' },
+{ titulo: 'E Não Sobrou Nenhum', musica: 'Lana Del Rey - Young and Beautiful', filme: 'O Grande Gatsby' },
+{ titulo: 'Drácula', musica: 'Bach - Toccata and Fugue in D Minor', filme: 'Drácula de Bram Stoker' },
+{ titulo: 'Assassinato no Beco', musica: 'Rachmaninoff - Prelude in C Sharp Minor', filme: 'Frankenstein' },
+{ titulo: 'O Retrato de Dorian Gray', musica: 'Placebo - Pure Morning', filme: 'O Retrato de Dorian Gray' },
+{ titulo: 'A Menina que Roubava Livros', musica: 'Hans Zimmer - Time', filme: 'O Menino do Pijama Listrado' },
+{ titulo: 'O Caçador de Pipas', musica: 'Coldplay - Fix You', filme: 'A Vida é Bela' },
+{ titulo: 'Amanhecer', musica: 'The Beatles - Across the Universe', filme: 'Comer, Rezar, Amar' },
+{ titulo: 'A Cabana', musica: 'Mumford & Sons - Believe', filme: 'Milagres do Paraíso' },
+{ titulo: 'Percy Jackson', musica: 'Imagine Dragons - Warriors', filme: 'Harry Potter e a Pedra Filosofal' },
+{ titulo: 'Cem Anos de Solidão', musica: 'Gipsy Kings - Bamboleo', filme: 'Como Água para Chocolate' },
+{ titulo: 'O Código Da Vinci', musica: 'Hans Zimmer - Chevaliers de Sangreal', filme: 'Anjos e Demônios' },
+{ titulo: 'Pequeno Príncipe', musica: 'Louis Armstrong - What a Wonderful World', filme: 'Pequeno Príncipe' },
+{ titulo: 'Sherlock Holmes', musica: 'The Rolling Stones - Paint it Black', filme: 'Sherlock Holmes' },
+{ titulo: 'Memórias Póstumas de Brás Cubas', musica: 'Chico Buarque - Funeral de um Lavrador', filme: 'Dom' },
+
+],
+searchText: '',
     };
+  }
+
+  filtrarLivros() {
+    const { searchText, livros } = this.state;
+    if (searchText === '') return livros;
+    return livros.filter((livro) =>
+      livro.titulo.toLowerCase().includes(searchText.toLowerCase())
+    );
   }
 
   render() {
     return (
-      <FlatList
-        contentContainerStyle={styles.container}
-        data={this.state.livros}
-        keyExtractor={(item) => item.titulo}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.item}
-            onPress={() =>
-              this.props.navigation.navigate('DetalhesLivro', { livro: item })
-            }>
-            <Text style={styles.itemText}>{item.titulo}</Text>
-          </TouchableOpacity>
-        )}
-      />
+      <View style={styles.container}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Buscar livro..."
+          placeholderTextColor="#aaa"
+          onChangeText={(text) => this.setState({ searchText: text })}
+          value={this.state.searchText}
+        />
+        <FlatList
+          data={this.filtrarLivros()}
+          keyExtractor={(item) => item.titulo}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={styles.item}
+              onPress={() =>
+                this.props.navigation.navigate('DetalhesLivro', { livro: item })
+              }>
+              <Text style={styles.itemText}>{item.titulo}</Text>
+            </TouchableOpacity>
+          )}
+        />
+      </View>
     );
   }
 }
 
+
+
 class SobreOApp extends React.Component {
   render() {
     return (
-      <View style={styles.welcomeContainer}>
-        <Image source={require('./Rifiteca (1).png')} style={styles.image} />
+      <View style={styles.container}>
+        <Image
+          source={require('./abc.png')} 
+          style={styles.image}
+        />
+        
+        <Text style={styles.text}>
+          Se você ama ler, assistir filmes e ouvir músicas, já deve ter pensado: "Por que não juntar tudo isso?" 
+          Pois bem, aqui é o lugar para fazer isso!
+        </Text>
+        
+        <Text style={styles.text}>
+          É super simples: cadastre-se, faça login e use a barra de pesquisa para buscar o livro que você está lendo 
+          ou quer ler. Aí, surgem nossas sugestões de músicas, filmes e o melhor: você pode comentar, trocar ideias 
+          e ainda descobrir novas sugestões de outras pessoas.
+        </Text>
       </View>
     );
   }
 }
 
 class DetalhesLivro extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      comentario: '',
+      comentarios: [],
+      usuario: '',
+    };
+  }
+
+  // Função para gerar uma chave única para o livro
+  getChaveLivro = () => {
+    const { livro } = this.props.route.params;
+    return `comentarios_${livro.titulo}`; // Chave exclusiva com base no título
+  };
+
+  // Adiciona comentário ao AsyncStorage com a chave do livro
+  adicionarComentario = async () => {
+    const { comentario, comentarios } = this.state;
+    if (comentario.trim() !== '') {
+      const novosComentarios = [...comentarios, comentario];
+      this.setState({ comentarios: novosComentarios, comentario: '' });
+
+      try {
+        await AsyncStorage.setItem(this.getChaveLivro(), JSON.stringify(novosComentarios));
+      } catch (error) {
+        console.log('Erro ao salvar os comentários:', error);
+      }
+    }
+  };
+
+  // Carrega os comentários do AsyncStorage para o livro específico
+  async componentDidMount() {
+    try {
+      const comentariosSalvos = await AsyncStorage.getItem(this.getChaveLivro());
+      if (comentariosSalvos) {
+        this.setState({ comentarios: JSON.parse(comentariosSalvos) });
+      }
+    } catch (error) {
+      console.log('Erro ao carregar os comentários:', error);
+    }
+  }
+
   render() {
     const { livro } = this.props.route.params;
+    const { comentario, comentarios } = this.state;
 
     return (
       <View style={styles.detalhesContainer}>
-        <Text style={styles.detalhesText}>Título: {livro.titulo}</Text>
-        <Text style={styles.recommendationTitle}>Música para Ouvir:</Text>
+        <Text style={styles.detalhesText}>{livro.titulo}</Text>
+        <Text style={styles.recommendationTitle}>Música com a mesma vibe:</Text>
         <Text style={styles.recommendationText}>{livro.musica}</Text>
-        <Text style={styles.recommendationTitle}>Filme Semelhante:</Text>
+        <Text style={styles.recommendationTitle}>Filme com a mesma tematica:</Text>
         <Text style={styles.recommendationText}>{livro.filme}</Text>
+        <Text style={styles.recommendationTitle}>Agora é a sua vez de dar pitaco:</Text>
+        <TextInput
+          style={styles.commentInput}
+          onChangeText={(text) => this.setState({ comentario: text })}
+          value={comentario}
+        />
+        <TouchableOpacity style={styles.button} onPress={this.adicionarComentario}>
+          <Text style={styles.buttonText}>Comentar</Text>
+        </TouchableOpacity>
+
+        <Text style={styles.recommendationTitle}>Comentários:</Text>
+        <FlatList
+          data={comentarios}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({ item }) => (
+            <Text style={styles.commentText}>
+              @{this.state.usuario}: {item}
+            </Text>
+          )}
+        />
       </View>
     );
   }
 }
 
-const HomeTabs = () => (
-  <Tab.Navigator
-    screenOptions={{
-      tabBarActiveTintColor: '#FFB300',
-      tabBarInactiveTintColor: '#ffffff',
-      tabBarStyle: {
-        backgroundColor: '#44345a',
-        borderTopLeftRadius: 0,
-        borderTopRightRadius: 0,
-      },
-    }}>
-    <Tab.Screen
-      name="Bem-vindo"
-      component={Welcome}
-      options={{
-        tabBarIcon: ({ color, size }) => (
-          <MaterialCommunityIcons name="home" color={color} size={size} />
-        ),
-      }}
-    />
-    <Tab.Screen
-      name="Login"
-      component={Principal}
-      options={{
-        tabBarIcon: ({ color, size }) => (
-          <MaterialCommunityIcons
-            name="home-account"
-            color={color}
-            size={size}
-          />
-        ),
-      }}
-    />
-    <Tab.Screen
-      name="Cadastro"
-      component={Cadastro}
-      options={{
-        tabBarIcon: ({ color, size }) => (
-          <MaterialCommunityIcons
-            name="account-details"
-            color={color}
-            size={size}
-          />
-          
-        ),
-      }}
-    />
-    <Tab.Screen
-      name="Sobre"
-      component={SobreOApp}
-      options={{
-        tabBarIcon: ({ color, size }) => (
-          <MaterialCommunityIcons
-            name="account-details"
-            color={color}
-            size={size}
-          />
-          
-        ),
-      }}
-    />
-  </Tab.Navigator>
-);
 
 const App = () => (
   <NavigationContainer>
     <Stack.Navigator>
       <Stack.Screen
-        name="Home"
-        component={HomeTabs}
+        name="Welcome"
+        component={Welcome}
         options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Login"
+        component={Principal}
+        options={{ headerShown: true }}
+      />
+      <Stack.Screen
+        name="Cadastro"
+        component={Cadastro}
+        options={{ headerShown: true }}
+      />
+      <Stack.Screen
+        name="Sobre"
+        component={SobreOApp}
+        options={{ headerShown: true }}
       />
       <Stack.Screen
         name="DetalhesLivro"
@@ -289,91 +390,139 @@ const App = () => (
 );
 
 const styles = StyleSheet.create({
-  welcomeContainer: {
+   welcomeContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 16,
-    backgroundColor: '#44345a',
+    backgroundColor: '#d1c4e9', 
   },
-
+  image: {
+    width: 150,
+    height: 150,
+    marginBottom: 20,
+    alignSelf: 'center',
+  },
+  welcomeText: {
+    fontFamily: 'Roboto',
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: '#3f0357', 
+    textAlign: 'center',
+    marginBottom: 20,
+  },
   container: {
     flex: 1,
     justifyContent: 'center',
     padding: 16,
-    backgroundColor: '#44345a',
+    backgroundColor: '#d1c4e9', 
   },
   label: {
     marginBottom: 8,
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#FFB300',
+    color: '#7b008a', 
   },
   input: {
     height: 50,
-    borderColor: '#FFB300',
+    borderColor: '#7b008a', 
+    borderWidth: 1,
+    borderRadius: 20,
+    paddingLeft: 20,
+    marginBottom: 16,
+    backgroundColor: '#ffffff', 
+    color: '#3f0357', 
+  },
+  button: {
+    backgroundColor: '#825096', 
+    width: 150, 
+    height: 50,
+    borderRadius: 20,
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    justifyContent: 'center',
+    marginBottom: 16,
+    alignItems: 'center',
+    alignSelf: 'center',
+  },
+  buttonText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  switchText: {
+    color: '#7b008a',
+    fontSize: 16,
+    textAlign: 'center',
+    marginTop: 16,
+  },
+  searchInput: {
+    height: 50,
+    borderColor: '#7b008a', 
+    borderWidth: 1,
+    borderRadius: 20,
+    paddingLeft: 20,
+    marginBottom: 16,
+    backgroundColor: '#ffffff',
+    color: '#3f0357',
+  },
+  item: {
+    backgroundColor: '#ffffff', 
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+  },
+  itemText: {
+    color: '#3f0357', 
+    fontSize: 16,
+  },
+  recommendationTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#7b008a',
+    marginTop: 16,
+  },
+  recommendationText: {
+    fontSize: 16,
+    color: '#3f0357',
+    marginBottom: 16,
+  },
+  commentInput: {
+    height: 50,
+    borderColor: '#7b008a',
     borderWidth: 1,
     borderRadius: 25,
     paddingLeft: 20,
     marginBottom: 16,
-    backgroundColor: '#382650',
+    backgroundColor: '#ffffff',
+    color: '#3f0357',
   },
-  button: {
-    backgroundColor: '#FFB300',
-    borderRadius: 25,
-    paddingVertical: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 100,
-    marginHorizontal: 'auto',
-  },
-  buttonText: {
-    color: '#4B0082',
+  commentText: {
     fontSize: 16,
-    fontWeight: 'bold',
-  },
-  item: {
-    padding: 10,
-    marginVertical: 5,
-    backgroundColor: '#FFB300',
-    borderRadius: 10,
-  },
-  itemText: {
-    fontSize: 18,
-    color: '#4B0082',
+    color: '#3f0357',
   },
   detalhesContainer: {
     flex: 1,
+    justifyContent: 'center',
     padding: 16,
-    backgroundColor: '#4B0082',
+    backgroundColor: '#d1c4e9', 
   },
   detalhesText: {
-    fontSize: 20,
-    color: '#FFB300',
+    fontSize: 22,
     fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  recommendationTitle: {
-    fontSize: 18,
-    color: '#FFB300',
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  recommendationText: {
-    fontSize: 16,
-    color: '#FFD700',
-  },
-  image: {
-    width: Platform.OS === 'web' ? 410 : 600,
-    height: Platform.OS === 'web' ? 410 : 730,
-    marginBottom: 20,
-  },
-  switchText: {
-    color: '#FFB300',
-    fontSize: 13,
+    color: '#3f0357',
     textAlign: 'center',
-    marginTop: 10,
-    textDecorationLine: 'underline',
+    marginBottom: 16,
+  },
+  text: {
+    fontSize: 16,
+    color: '#3f0357',
+    textAlign: 'center',
+    marginBottom: 16,
   },
 });
 
