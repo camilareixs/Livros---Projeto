@@ -9,36 +9,39 @@ import {
   FlatList,
   Image,
 } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Audio } from 'expo-av';
+import { NavigationContainer } from '@react-navigation/native';  // Importando para navegação entre telas
+import { createStackNavigator } from '@react-navigation/stack'; // Usando navegação com pilha de telas
+import AsyncStorage from '@react-native-async-storage/async-storage';  // Para armazenamento local de dados
+import { Audio } from 'expo-av'; // Para manipulação de áudio
 
-const Stack = createStackNavigator();
+const Stack = createStackNavigator(); // Criação da pilha de navegação
 
+// Tela inicial de boas-vindas
 class Welcome extends React.Component {
   render() {
     return (
       <View style={styles.welcomeContainer}>
+        {/* Exibe a imagem de boas-vindas */}
         <Image source={require('./abc.png')} style={styles.image} />
         <Text style={styles.welcomeText}>
           Uma rede social para quem quer dar play nos livros, virar pagina nos filmes e assistir as musicas!
         </Text>
+        {/* Botões de navegação */}
         <TouchableOpacity
           style={styles.button}
-          onPress={() => this.props.navigation.navigate('Login')}
+          onPress={() => this.props.navigation.navigate('Login')} // Navega para a tela de login
         >
           <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.button}
-          onPress={() => this.props.navigation.navigate('Cadastro')}
+          onPress={() => this.props.navigation.navigate('Cadastro')} // Navega para a tela de cadastro
         >
           <Text style={styles.buttonText}>Cadastro</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.button}
-          onPress={() => this.props.navigation.navigate('Sobre')}
+          onPress={() => this.props.navigation.navigate('Sobre')} // Navega para a tela "Sobre"
         >
           <Text style={styles.buttonText}>Sobre</Text>
         </TouchableOpacity>
@@ -47,60 +50,66 @@ class Welcome extends React.Component {
   }
 }
 
+// Tela de login
 class Principal extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { usuario: '', senha: '', sound: null };
+    this.state = { usuario: '', senha: '', sound: null };  // Definindo estado inicial
   }
 
+  // Função para tocar o som de erro
   async playErrorSound() {
     try {
       const { sound } = await Audio.Sound.createAsync(
-        require('./erro.mp3')
+        require('./erro.mp3') // Carrega o arquivo de som
       );
-      this.setState({ sound });
-      await sound.playAsync();
+      this.setState({ sound }); // Armazena o objeto de som no estado
+      await sound.playAsync(); // Reproduz o som
     } catch (error) {
-      console.log('Erro ao carregar o som:', error);
+      console.log('Erro ao carregar o som:', error); // Caso ocorra erro
     }
   }
 
+  // Função para verificar o login
   async ler() {
     try {
-      let senha = await AsyncStorage.getItem(this.state.usuario);
-      if (senha && senha === this.state.senha) {
-        this.goToBusca();
+      let senha = await AsyncStorage.getItem(this.state.usuario); // Tenta obter senha do AsyncStorage
+      if (senha && senha === this.state.senha) { // Se a senha bater
+        this.goToBusca(); // Vai para a tela de busca
       } else {
         alert(senha ? 'Senha Incorreta!' : 'Usuário não encontrado!');
-        this.playErrorSound();
+        this.playErrorSound(); // Toca o som de erro se falhar
       }
     } catch (erro) {
-      console.log(erro);
+      console.log(erro); // Se ocorrer erro na leitura do AsyncStorage
     }
   }
 
+  // Navega para a tela de busca de livros
   goToBusca() {
-    this.props.navigation.replace('BuscarLivro');
+    this.props.navigation.replace('BuscarLivro');  // Substitui a tela atual pela de busca
   }
 
   render() {
     return (
       <ScrollView contentContainerStyle={styles.container}>
+        {/* Inputs de login */}
         <Text style={styles.label}>Usuário:</Text>
         <TextInput
           style={styles.input}
-          onChangeText={(texto) => this.setState({ usuario: texto })}
+          onChangeText={(texto) => this.setState({ usuario: texto })} // Atualiza o estado com o texto
         />
         <Text style={styles.label}>Senha:</Text>
         <TextInput
           style={styles.input}
           secureTextEntry
-          onChangeText={(texto) => this.setState({ senha: texto })}
+          onChangeText={(texto) => this.setState({ senha: texto })} // Atualiza o estado com a senha
         />
-        <TouchableOpacity style={styles.button} onPress={() => this.ler()}>
+        {/* Botão de login */}
+        <TouchableOpacity style={styles.button} onPress={() => this.ler()}> 
           <Text style={styles.buttonText}>Logar</Text>
         </TouchableOpacity>
-
+        {/* Botão para cadastro */}
         <TouchableOpacity
           onPress={() => this.props.navigation.navigate('Cadastro')}
         >
@@ -111,24 +120,27 @@ class Principal extends React.Component {
   }
 }
 
+// Tela de cadastro de novo usuário
 class Cadastro extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { usuario: '', senha: '' };
+    this.state = { usuario: '', senha: '' };  // Define os campos para usuário e senha
   }
 
+  // Função para gravar o usuário e senha no AsyncStorage
   async gravar() {
     try {
-      await AsyncStorage.setItem(this.state.usuario, this.state.senha);
-      alert('Usuário cadastrado com sucesso!');
+      await AsyncStorage.setItem(this.state.usuario, this.state.senha); // Armazena no AsyncStorage
+      alert('Usuário cadastrado com sucesso!'); // Exibe mensagem de sucesso
     } catch (erro) {
-      alert('Erro ao cadastrar!');
+      alert('Erro ao cadastrar!'); // Exibe erro se falhar
     }
   }
 
   render() {
     return (
       <ScrollView contentContainerStyle={styles.container}>
+        {/* Campos de cadastro */}
         <Text style={styles.label}>Nome de usuário:</Text>
         <TextInput
           style={styles.input}
@@ -140,12 +152,14 @@ class Cadastro extends React.Component {
           secureTextEntry
           onChangeText={(texto) => this.setState({ senha: texto })}
         />
+        {/* Botão de cadastro */}
         <TouchableOpacity style={styles.button} onPress={() => this.gravar()}>
           <Text style={styles.buttonText}>Cadastrar</Text>
         </TouchableOpacity>
-
+        {/* Botão para voltar ao login */}
         <TouchableOpacity
-          onPress={() => this.props.navigation.navigate('Login')}>
+          onPress={() => this.props.navigation.navigate('Login')}
+        >
           <Text style={styles.switchText}>Já tem uma conta? Faça login</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -153,68 +167,22 @@ class Cadastro extends React.Component {
   }
 }
 
+// Tela de busca de livros
 class BuscarLivro extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      livros: [
-
-      { titulo: 'Garota Exemplar', musica: 'Monsters - Shinedown', filme: 'Atração Fatal' },
-      { titulo: 'O Poderoso Chefão', musica: 'Hurt - Johnny Cash', filme: 'Donnie Brasco' },
-      { titulo: 'É Assim Que Acaba', musica: 'Stay - Rihanna', filme: 'Revenge' },
-      { titulo: 'Se Houver Amanhã', musica: 'Fighter - Royal Deluxe', filme: 'Mississipi em Chamas' },
-      { titulo: 'A Guerra dos Tronos', musica: 'The Rains of Castamere - The National', filme: 'O Senhor dos Anéis' },
-      { titulo: 'A Fúria dos Reis', musica: 'Lorde - Glory and Gore', filme: 'Gladiador' },
-      { titulo: 'A Tormenta de Espadas', musica: 'Metallica - Enter Sandman', filme: 'Reino dos Céus' },
-      { titulo: 'O Festim dos Corvos', musica: 'Knights of Cydonia - Muse', filme: 'O Destino de Júpiter' },
-      { titulo: 'A Dança dos Dragões', musica: 'Dragons - Imagine Dragons', filme: 'Coração Valente' },
-      { titulo: 'O Jardim dos Esquecidos', musica: 'The Sound of Silence - Simon & Garfunkel', filme: 'A Outra' },
-      { titulo: 'A Garota no Trem', musica: 'Somebodys Watching Me - Rockwell', filme: 'A Janela Secreta' },
-      { titulo: 'Antes de Dormir', musica: 'Radiohead - No Surprises', filme: 'Efeito Borboleta' }, 
-{ titulo: 'O Homem de Giz', musica: 'Arctic Monkeys - Do I Wanna Know?', filme: 'Clube da Luta' },
-{ titulo: 'A Paciente Silenciosa', musica: 'Massive Attack - Teardrop', filme: 'O Sexto Sentido' },
-{ titulo: 'O Silêncio dos Inocentes', musica: 'Nine Inch Nails - Closer', filme: 'Seven' },
-{ titulo: 'It: A Coisa', musica: 'The Rolling Stones - Paint It Black', filme: 'O Iluminado' },
-{ titulo: 'O Exorcista', musica: 'Mike Oldfield - Tubular Bells', filme: 'Invocação do Mal' },
-{ titulo: 'A Assombração da Casa da Colina', musica: 'Ghost - Cirice', filme: 'A Casa Amaldiçoada' },
-{ titulo: 'Hereditário', musica: 'Portishead - Roads', filme: 'O Ritual' },
-{ titulo: 'O Chamado', musica: 'Marilyn Manson - Sweet Dreams', filme: 'O Grito' },
-{ titulo: 'Orgulho e Preconceito', musica: 'Mozart - Sonata em Fá Maior', filme: 'Orgulho e Preconceito' },
-{ titulo: 'Um Dia', musica: 'Snow Patrol - Chasing Cars', filme: 'PS: Eu Te Amo' },
-{ titulo: 'Querido John', musica: 'Taylor Swift - Love Story', filme: 'Diário de uma Paixão' },
-{ titulo: 'Simplesmente Acontece', musica: 'Ed Sheeran - Thinking Out Loud', filme: 'Como Eu Era Antes de Você' },
-{ titulo: 'A Culpa é das Estrelas', musica: 'Birdy - Not About Angels', filme: 'Se Eu Ficar' },
-{ titulo: '1984', musica: 'David Bowie - 1984', filme: 'Brazil' },
-{ titulo: 'Uma vida pequena', musica: 'Leonard Cohen - Hallelujah', filme: 'Manchester à Beira-Mar' },
-{ titulo: 'Crime e Castigo', musica: 'Radiohead - Karma Police', filme: 'Clube da Luta' },
-{ titulo: 'O Morro dos Ventos Uivantes', musica: 'Kate Bush - Wuthering Heights', filme: 'O Morro dos Ventos Uivantes' },
-{ titulo: 'Moby Dick', musica: 'Johnny Cash - Hurt', filme: 'No Coração do Mar' },
-{ titulo: 'Os Miseráveis', musica: 'I Dreamed a Dream', filme: 'Os Miseráveis' },
-{ titulo: 'E Não Sobrou Nenhum', musica: 'Lana Del Rey - Young and Beautiful', filme: 'O Grande Gatsby' },
-{ titulo: 'Drácula', musica: 'Bach - Toccata and Fugue in D Minor', filme: 'Drácula de Bram Stoker' },
-{ titulo: 'Assassinato no Beco', musica: 'Rachmaninoff - Prelude in C Sharp Minor', filme: 'Frankenstein' },
-{ titulo: 'O Retrato de Dorian Gray', musica: 'Placebo - Pure Morning', filme: 'O Retrato de Dorian Gray' },
-{ titulo: 'A Menina que Roubava Livros', musica: 'Hans Zimmer - Time', filme: 'O Menino do Pijama Listrado' },
-{ titulo: 'O Caçador de Pipas', musica: 'Coldplay - Fix You', filme: 'A Vida é Bela' },
-{ titulo: 'Amanhecer', musica: 'The Beatles - Across the Universe', filme: 'Comer, Rezar, Amar' },
-{ titulo: 'A Cabana', musica: 'Mumford & Sons - Believe', filme: 'Milagres do Paraíso' },
-{ titulo: 'Percy Jackson', musica: 'Imagine Dragons - Warriors', filme: 'Harry Potter e a Pedra Filosofal' },
-{ titulo: 'Cem Anos de Solidão', musica: 'Gipsy Kings - Bamboleo', filme: 'Como Água para Chocolate' },
-{ titulo: 'O Código Da Vinci', musica: 'Hans Zimmer - Chevaliers de Sangreal', filme: 'Anjos e Demônios' },
-{ titulo: 'Pequeno Príncipe', musica: 'Louis Armstrong - What a Wonderful World', filme: 'Pequeno Príncipe' },
-{ titulo: 'Sherlock Holmes', musica: 'The Rolling Stones - Paint it Black', filme: 'Sherlock Holmes' },
-{ titulo: 'Memórias Póstumas de Brás Cubas', musica: 'Chico Buarque - Funeral de um Lavrador', filme: 'Dom' },
-
-],
-searchText: '',
+      livros: [/* Lista de livros */],
+      searchText: '', // Texto de pesquisa
     };
   }
 
+  // Função para filtrar os livros com base no texto da pesquisa
   filtrarLivros() {
     const { searchText, livros } = this.state;
-    if (searchText === '') return livros;
+    if (searchText === '') return livros; // Se não houver texto, retorna todos os livros
     return livros.filter((livro) =>
-      livro.titulo.toLowerCase().includes(searchText.toLowerCase())
+      livro.titulo.toLowerCase().includes(searchText.toLowerCase()) // Filtra pelo título
     );
   }
 
@@ -225,17 +193,17 @@ searchText: '',
           style={styles.searchInput}
           placeholder="Buscar livro..."
           placeholderTextColor="#aaa"
-          onChangeText={(text) => this.setState({ searchText: text })}
-          value={this.state.searchText}
+          onChangeText={(text) => this.setState({ searchText: text })} // Atualiza o estado com o texto de pesquisa
+          value={this.state.searchText} // Exibe o texto de pesquisa
         />
         <FlatList
-          data={this.filtrarLivros()}
+          data={this.filtrarLivros()} // Passa a lista filtrada para a FlatList
           keyExtractor={(item) => item.titulo}
           renderItem={({ item }) => (
             <TouchableOpacity
               style={styles.item}
               onPress={() =>
-                this.props.navigation.navigate('DetalhesLivro', { livro: item })
+                this.props.navigation.navigate('DetalhesLivro', { livro: item }) // Navega para detalhes do livro
               }>
               <Text style={styles.itemText}>{item.titulo}</Text>
             </TouchableOpacity>
@@ -246,8 +214,7 @@ searchText: '',
   }
 }
 
-
-
+// Tela com informações sobre o app
 class SobreOApp extends React.Component {
   render() {
     return (
@@ -272,43 +239,44 @@ class SobreOApp extends React.Component {
   }
 }
 
+// Tela de detalhes do livro, onde os usuários podem adicionar comentários
 class DetalhesLivro extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       comentario: '',
       comentarios: [],
-      usuario: '',
+      usuario: '', // Armazenando o usuário
     };
   }
 
-  // Função para gerar uma chave única para o livro
+  // Função para gerar uma chave única para cada livro
   getChaveLivro = () => {
     const { livro } = this.props.route.params;
-    return `comentarios_${livro.titulo}`; // Chave exclusiva com base no título
+    return `comentarios_${livro.titulo}`; // A chave é baseada no título do livro
   };
 
-  // Adiciona comentário ao AsyncStorage com a chave do livro
+  // Função para adicionar um comentário ao livro
   adicionarComentario = async () => {
     const { comentario, comentarios } = this.state;
     if (comentario.trim() !== '') {
-      const novosComentarios = [...comentarios, comentario];
-      this.setState({ comentarios: novosComentarios, comentario: '' });
+      const novosComentarios = [...comentarios, comentario]; // Adiciona o novo comentário
+      this.setState({ comentarios: novosComentarios, comentario: '' }); // Atualiza o estado com os novos comentários
 
       try {
-        await AsyncStorage.setItem(this.getChaveLivro(), JSON.stringify(novosComentarios));
+        await AsyncStorage.setItem(this.getChaveLivro(), JSON.stringify(novosComentarios)); // Salva os comentários no AsyncStorage
       } catch (error) {
-        console.log('Erro ao salvar os comentários:', error);
+        console.log('Erro ao salvar os comentários:', error); // Em caso de erro
       }
     }
   };
 
-  // Carrega os comentários do AsyncStorage para o livro específico
+  // Carrega os comentários ao carregar a tela
   async componentDidMount() {
     try {
       const comentariosSalvos = await AsyncStorage.getItem(this.getChaveLivro());
       if (comentariosSalvos) {
-        this.setState({ comentarios: JSON.parse(comentariosSalvos) });
+        this.setState({ comentarios: JSON.parse(comentariosSalvos) }); // Atualiza os comentários se existirem
       }
     } catch (error) {
       console.log('Erro ao carregar os comentários:', error);
@@ -324,7 +292,7 @@ class DetalhesLivro extends React.Component {
         <Text style={styles.detalhesText}>{livro.titulo}</Text>
         <Text style={styles.recommendationTitle}>Música com a mesma vibe:</Text>
         <Text style={styles.recommendationText}>{livro.musica}</Text>
-        <Text style={styles.recommendationTitle}>Filme com a mesma tematica:</Text>
+        <Text style={styles.recommendationTitle}>Filme com a mesma temática:</Text>
         <Text style={styles.recommendationText}>{livro.filme}</Text>
         <Text style={styles.recommendationTitle}>Agora é a sua vez de dar pitaco:</Text>
         <TextInput
@@ -340,11 +308,7 @@ class DetalhesLivro extends React.Component {
         <FlatList
           data={comentarios}
           keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item }) => (
-            <Text style={styles.commentText}>
-              @{this.state.usuario}: {item}
-            </Text>
-          )}
+          renderItem={({ item }) => <Text style={styles.comment}>{item}</Text>}
         />
       </View>
     );
