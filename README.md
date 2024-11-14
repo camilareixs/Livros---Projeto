@@ -24,7 +24,7 @@ Achou aquele livro incrível? O filme perfeito? Ou a música que te deixou sem p
 
 ---
 
-## 📚 **Funcionalidades do App:**
+## **Funcionalidades do App:**
 - **Tela de Boas-Vindas**: Uma tela inicial que mais parece a abertura de um filme épico. 
 - **Busca Rápida de Livros**: Encontre e salve todos os livros que você ama (ou quer amar). E não se esqueça: *temos as melhores playlists para acompanhar!* 
 - **Comentários e Interações**: Porque a diversão só acontece quando a conversa começa! 
@@ -32,14 +32,14 @@ Achou aquele livro incrível? O filme perfeito? Ou a música que te deixou sem p
 
 ---
 
-## 🎶 **Tecnologias Usadas**  
+## **Tecnologias Usadas**  
 - **React Native**: Criamos este app para você curtir em qualquer dispositivo! 📱
 - **AsyncStorage**: Seus dados salvos de maneira segura, porque sabemos que você vai querer voltar sempre! 💾
 - **Expo Audio**: Porque se você errar a senha, pagará mico! 🎵
 
 ---
 
-## 🧩 **Rodando o App Localmente**
+## **Rodando o App Localmente**
 Prepare-se para dar play no RIFITECA no seu dispositivo!  
 Siga esses passos e entre no universo onde livros, filmes e músicas são estrelas principais.
 
@@ -47,9 +47,13 @@ Siga esses passos e entre no universo onde livros, filmes e músicas são estrel
 2. **Descompacte** e abra o projeto no seu editor favorito (dica: o VS Code ama isso).
 3. **Instale as dependências**: 
 4. **Inicie o projeto**: 
-5. **Curta a experiência** no seu dispositivo ou emulador! 😎
+5. **Curta a experiência** no seu dispositivo ou emulador! 
 
 ---
 
-## 🎬 **Contribua com o RIFITECA!**  
+## **Contribua com o RIFITECA!**  
 Acha que o filme precisa de um final alternativo? Tem ideias para deixar o app ainda mais divertido? **Abra uma issue** ou envie um **pull request** e faça parte da nossa equipe de roteiristas (desenvolvedores)! Sinta-se em casa mas lembre que não está! 🎥💻
+
+---
+
+## **É um desenvolvedor? Não roube a minha ideia, me chame e vamos fazer rodar!**  
